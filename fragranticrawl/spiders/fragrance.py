@@ -1,16 +1,19 @@
-import scrapy
-class FragranceSpider(scrapy.Spider):
-	name='fragrance'
+from scrapy.contrib.linkextractors import LinkExtractor
+from scrapy.contrib.spiders import CrawlSpider, Rule
+from fragranticrawl.items import Fragrance
 
-	def start_requests(self):
-		urls = [
-		'http://www.fragrantica.com/perfume/Lanvin/Avant-Garde-13612.html',
-		]
-		return [scrapy.Request(url=url, callback=self.parse)
-		for url in urls]
 
-	def parse(self, response):
-		url = response.url
-		title = response.css('h1 span::text').extract_first()
-		print('URL is: {}'.format(url))
-		print('Title is: {}'.format(title))
+class FragranceSpider(CrawlSpider):
+    name = 'fragrance'
+
+    allowed_domains = ['fragrantica.com']
+    start_urls = [
+        'http://www.fragrantica.com/designers/Lanvin.html',
+    ]
+    rules = Rule(LinkExtractor(allow='(/perfume/Lanvin/)((?!:).)*$'),
+                 callback='parse_items', follow=True)
+
+    def parse_items(self, response):
+        fragrance = Fragrance()
+        fragrance['name'] = response.css('h1 span::text').extract_first()
+        return fragrance

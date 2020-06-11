@@ -8,7 +8,9 @@
 import scrapy
 
 
-class FragranticrawlItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class Fragrance(scrapy.Item):
+    name = scrapy.Field()
+    releaseYear = scrapy.Field()
+    brand = scrapy.Field()
+    perfumers = scrapy.Field()
+    notes = scrapy.Field()
