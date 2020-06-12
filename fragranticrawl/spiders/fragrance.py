@@ -11,20 +11,22 @@ class FragranceSpider(CrawlSpider):
         'http://www.fragrantica.com/designers/Lanvin.html',
     ]
     rules = [Rule(LinkExtractor(allow='(/perfume/Lanvin/)((?!:).)*$'),
-                 callback='parse_items', follow=True)]
+                  callback='parse_items', follow=True)]
 
     genderToEnum = {
-        'male': 'MEN',
-        'female': 'WOMEN',
-        'unisex': 'EVERYONE'
+        'men': 'MEN',
+        'women': 'WOMEN',
+        'women and men': 'EVERYONE'
     }
 
     def parse_items(self, response):
         fragrance = Fragrance()
-        fragrance['name'] = response.css('h1 span::text').extract_first()
         fragrance['brand'] = response.css(
             '#col1 > div > div > p > span:nth-child(1) > span > a > span'
         ).extract_first()
+        name, gender = response.css(
+            'h1 span::text').extract_first().split(fragrance['brand'])
+        fragrance['name'] = name
         fragrance['perfumers'] = response.css(
             '#col1 > div > div > div:nth-child(7) > p'
         ).xpath('.//a//b/text()').getall()
@@ -32,6 +34,6 @@ class FragranceSpider(CrawlSpider):
 
         # Needed from brand's page
         # fragrance['releaseYear'] = None
-        # fragrance['gender'] = genderToEnum[]
+        fragrance['gender'] = self.genderToEnum[gender[4:]]
 
         return fragrance
