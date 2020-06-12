@@ -14,3 +14,4 @@ class Fragrance(scrapy.Item):
     brand = scrapy.Field()
     perfumers = scrapy.Field()
     notes = scrapy.Field()
+    gender = scrapy.Field()
