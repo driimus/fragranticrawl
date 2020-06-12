@@ -14,26 +14,29 @@ class FragranceSpider(CrawlSpider):
                   callback='parse_items', follow=True)]
 
     genderToEnum = {
-        'men': 'MEN',
-        'women': 'WOMEN',
-        'women and men': 'EVERYONE'
+        'men': 'MASCULINE',
+        'women': 'FEMININE',
+        'women and men': 'UNISEX'
     }
 
     def parse_items(self, response):
         fragrance = Fragrance()
-        fragrance['brand'] = response.css(
-            '#col1 > div > div > p > span:nth-child(1) > span > a > span'
+        fragrance['brand'] = brand = response.css(
+            '#col1 > div > div > p > span:nth-child(1) > span > a > span::text'
         ).extract_first()
         name, gender = response.css(
-            'h1 span::text').extract_first().split(fragrance['brand'])
+            'h1 span::text'
+        ).extract_first().split(f' {brand} for ')
         fragrance['name'] = name
         fragrance['perfumers'] = response.css(
             '#col1 > div > div > div:nth-child(7) > p'
         ).xpath('.//a//b/text()').getall()
-        fragrance['notes'] = None
+        fragrance['notes'] = response.css(
+            '#col1 > div > div > div:nth-child(13) > div:nth-child(1) > p'
+        ).xpath('.//span//img/@alt').getall()
 
         # Needed from brand's page
         # fragrance['releaseYear'] = None
-        fragrance['gender'] = self.genderToEnum[gender[4:]]
+        fragrance['gender'] = self.genderToEnum[gender]
 
         return fragrance
