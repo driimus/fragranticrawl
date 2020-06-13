@@ -13,5 +13,6 @@ class Fragrance(scrapy.Item):
     releaseYear = scrapy.Field()
     brand = scrapy.Field()
     perfumers = scrapy.Field()
-    notes = scrapy.Field()
     gender = scrapy.Field()
+    # should be an alt to top/mid/base
+    notes = scrapy.Field()
