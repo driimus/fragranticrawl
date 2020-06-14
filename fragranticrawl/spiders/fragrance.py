@@ -1,5 +1,6 @@
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
+from scrapy import Request
 from fragranticrawl.items import Fragrance
 
 
@@ -19,8 +20,21 @@ class FragranceSpider(CrawlSpider):
         'women and men': 'UNISEX'
     }
 
+    def parse_start_url(self, response):
+        requests = []
+        # select ALL frag containers from res
+        # for each frag container
+        #    create new frag object
+        #    get name
+        #    get gender
+        #    get release year
+        #    req with link to frag
+        #    link frag object to req
+        #    append to req array
+        yield requests
+
     def parse_items(self, response):
-        fragrance = Fragrance()
+        fragrance = response.meta['frag']
         fragrance['brand'] = brand = response.css(
             '#col1 > div > div > p > span:nth-child(1) > span > a > span::text'
         ).extract_first()
