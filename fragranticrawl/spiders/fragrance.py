@@ -11,27 +11,41 @@ class FragranceSpider(CrawlSpider):
     start_urls = [
         'http://www.fragrantica.com/designers/Lanvin.html',
     ]
-    rules = [Rule(LinkExtractor(allow='(/perfume/Lanvin/)((?!:).)*$'),
-                  callback='parse_items', follow=True)]
+    rules = [Rule(LinkExtractor(allow='(/designers/Lanvin)((?!:).)*$'),
+                  callback='parse_start_url', follow=True)]
 
     genderToEnum = {
-        'men': 'MASCULINE',
-        'women': 'FEMININE',
-        'women and men': 'UNISEX'
+        'male': 'MASCULINE',
+        'female': 'FEMININE',
+        'unisex': 'UNISEX'
     }
 
     def parse_start_url(self, response):
-        requests = []
+        # requests = []
+        className = 'cell text-left prefumeHbox px1-box-shadow'
+        containers = response.xpath(
+            f'//div[@class="{className}"]')
         # select ALL frag containers from res
         # for each frag container
-        #    create new frag object
-        #    get name
-        #    get gender
-        #    get release year
+        for container in containers:
+            #    create new frag object
+            fragrance = Fragrance()
+            fragrance['name'] = container.xpath(
+                './/div[1]/div[3]/h3/a/text()').get()
+            fragrance['gender'] = self.genderToEnum[container.xpath(
+                './/div[2]/span[1]/text()').get()]
+            fragrance['releaseYear'] = container.xpath(
+                './/div[2]/span[2]/text()').get()
+            url = response.urljoin(container.xpath(
+                './/div[1]/div[3]/h3/a/@href').get())
         #    req with link to frag
+            req = Request(url, callback=self.parse_items)
         #    link frag object to req
+            req.meta['frag'] = fragrance
         #    append to req array
-        yield requests
+            yield req
+            # requests.append(req)
+        # yield requests
 
     def parse_items(self, response):
         fragrance = response.meta['frag']
@@ -51,6 +65,6 @@ class FragranceSpider(CrawlSpider):
 
         # Needed from brand's page
         # fragrance['releaseYear'] = None
-        fragrance['gender'] = self.genderToEnum[gender]
+        # fragrance['gender'] = self.genderToEnum[gender]
 
         return fragrance
