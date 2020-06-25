@@ -34,18 +34,16 @@ class FragranceSpider(CrawlSpider):
                 './/div[1]/div[3]/h3/a/text()').get()
             fragrance['gender'] = self.genderToEnum[container.xpath(
                 './/div[2]/span[1]/text()').get()]
-            fragrance['releaseYear'] = container.xpath(
+            releaseYear = container.xpath(
                 './/div[2]/span[2]/text()').get()
+            fragrance['releaseYear'] = int(releaseYear)
             url = response.urljoin(container.xpath(
                 './/div[1]/div[3]/h3/a/@href').get())
         #    req with link to frag
             req = Request(url, callback=self.parse_items)
         #    link frag object to req
             req.meta['frag'] = fragrance
-        #    append to req array
             yield req
-            # requests.append(req)
-        # yield requests
 
     def parse_items(self, response):
         fragrance = response.meta['frag']
@@ -62,9 +60,5 @@ class FragranceSpider(CrawlSpider):
         fragrance['notes'] = response.css(
             '#col1 > div > div > div:nth-child(13) > div:nth-child(1) > p'
         ).xpath('.//span//img/@alt').getall()
-
-        # Needed from brand's page
-        # fragrance['releaseYear'] = None
-        # fragrance['gender'] = self.genderToEnum[gender]
 
         return fragrance
