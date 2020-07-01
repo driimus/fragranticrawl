@@ -14,6 +14,8 @@ class FragranceSpider(CrawlSpider):
     rules = [Rule(LinkExtractor(allow='(/designers/Lanvin)((?!:).)*$'),
                   callback='parse_start_url', follow=True)]
 
+    layers = ['base', 'mid', 'top']
+
     genderToEnum = {
         'male': 'MASCULINE',
         'female': 'FEMININE',
@@ -57,8 +59,16 @@ class FragranceSpider(CrawlSpider):
         fragrance['perfumers'] = response.css(
             '#col1 > div > div > div:nth-child(7) > p'
         ).xpath('.//a//b/text()').getall()
-        fragrance['notes'] = response.css(
+        # split into top / mid / base
+        notes = response.css(
             '#col1 > div > div > div:nth-child(13) > div:nth-child(1) > p'
-        ).xpath('.//span//img/@alt').getall()
+        )[::-1]
+        notes = list(map(self.parse_notes, notes))
+        fragrance['notes'] = {}
+        for pair in zip(self.layers, notes):
+            fragrance['notes'][pair[0]] = pair[1]
 
         return fragrance
+
+    def parse_notes(self, response):
+        return response.xpath('.//span//img/@alt').getall()
