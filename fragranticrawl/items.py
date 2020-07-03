@@ -16,3 +16,4 @@ class Fragrance(scrapy.Item):
     gender = scrapy.Field()
     # should be an alt to top/mid/base
     notes = scrapy.Field()
+    thumbnail = scrapy.Field()

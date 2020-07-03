@@ -49,6 +49,8 @@ class FragranceSpider(CrawlSpider):
 
     def parse_items(self, response):
         fragrance = response.meta['frag']
+        fragrance['thumbnail'] = response.css(
+            '#mainpicbox > img').xpath('@src').extract_first()
         fragrance['brand'] = brand = response.css(
             '#col1 > div > div > p > span:nth-child(1) > span > a > span::text'
         ).extract_first()
